@@ -1,0 +1,22 @@
+{
+  "name": "patientappointments",
+  "version": "1.0.0",
+  "description": "the patientappointments web module to provide access to patients",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "PatientAppointments"
+  ],
+  "author": "Anil Sehgal (anil.sehgal10@gmail.com)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4",
+    "mssql": "^3.0.1"
+  },
+  "devDependencies": {
+    "array-difference": "0.0.1",
+    "body-parser": "^1.14.2"
+  }
+}

@@ -1,0 +1,136 @@
+<div class="container" id="BookingsController" ng-controller="BookingsController">
+    <div class="row">
+        <div class="col-xs-12" >
+            <div class="text-danger" ng-if="bookings.length === 0">No Bookings Found!</div>
+            <ul class="media-list">
+                <li ng-repeat="booking in bookings" class="media">
+                    <div class="media-left media-middle">
+                        <img class="media-object img-thumbnail"
+                        src="images/Appointment.png" style='height: 85px;' alt="Appointment">
+                    </div>
+                    <div class="media-body">
+                        <div class="media-heading">
+                            <h3>{{booking.doctorid}}</h3>
+                        </div>
+                        <p>
+                            <span class='h4'>Status: 
+                                <span ng-switch on="booking.appointmentStatus">
+                                    <span ng-switch-when="1">
+                                       <span class="label label-default">New</span>
+                                    </span>
+                                    <span ng-switch-when="5">
+                                        <span class="label label-success">Approved</span>
+                                    </span>
+                                    <span ng-switch-when="10">
+                                        <span class="label label-danger">Rejected</span>
+                                    </span>
+                                    <span ng-switch-when="15">
+                                        <span class="label label-warning">Reschedule Requested</span>
+                                    </span>
+                                    <span ng-switch-when="20">
+                                        <span class="label label-info">Cancelled By User</span>
+                                    </span>
+                                    <span ng-switch-default>
+                                        <span class="label label-primary">Unknown</span>
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="pull-right">
+                                <span ng-show="booking.appointmentStatus === 5 || booking.appointmentStatus === 1 || booking.appointmentStatus === 15"><button type="button" data-toggle="modal" data-target="#rescheduleModal" data-appointmentid="{{booking.appointmentId}}" data-appointmentdate="{{booking.dayRequiredForAppointment}}" data-appointmenttimehrs="{{booking.appointmentTimeHours}}" data-appointmentmin="{{booking.appointmentTimeMinutes}}" class="btn btn-warning">Request Reschedule</button></span> <span ng-show="booking.appointmentStatus === 1 || booking.appointmentStatus === 15"><button type="button" class="btn btn-danger" ng-click="cancelAppointment(booking)">Cancel Appointment</button></span>
+                            </span>
+                        </p>
+                        <span>{{booking.dayRequiredForAppointment}}</span>
+                        <span>{{booking.appointmentTimeHours > 9 ? booking.appointmentTimeHours : '0' + booking.appointmentTimeHours}}</span>:<span>{{booking.appointmentTimeMinutes > 9 ? booking.appointmentTimeMinutes : '0' + booking.appointmentTimeMinutes}}</span>
+                        <p>{{booking.ailmentDescription}}</p>
+                    </div>
+                </li>
+            </ul>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+    
+    <div id="rescheduleModal"  class="modal fade" role="dialog" aria-labelledby="rescheduleModelLabel">
+        <div class="modal-dialog" role="document">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="rescheduleModelLabel">Reschedule Appointment</h4>
+            </div>
+            <div class="modal-body">
+                
+                <form class="form-horizontal" id="rescheduleForm" name="rescheduleForm" novalidate ng-submit="rescheduleAppointment()" role="form">
+                    <div class="form-group">
+                        <label class="col-xs-12 col-sm-3">Appointment Id:</label>
+                        <div class="col-xs-12 col-sm-9">
+                            <input type="text" class="form-control" ng-model="modifiedAppointment.inputAppointmentId" id="inputAppointmentId" name="inputAppointmentId" ng-readonly="true" placeholder="Appointment Id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+						<label class="col-xs-12 col-sm-3">Old Date and Time:</label>
+						<div class="has-feedback col-xs-12 col-sm-5">
+							<input type="text" readonly class="form-control" id="currentAppointmentDate" placeholder="Date"> <span
+								class="glyphicon glyphicon-calendar form-control-feedback"></span>
+						</div>
+						<div class="has-feedback col-xs-12 col-sm-4">
+							<input type="text" readonly class="form-control" id="currentAppointmentTime" placeholder="Time"> <span
+								class="glyphicon glyphicon-time form-control-feedback"></span>
+						</div>
+					</div>
+					<div class="form-group" ng-class="{ 'has-error' : (rescheduleForm.inputAppointmentDate.$error.required && rescheduleForm.inputAppointmentDate.$error.date && !rescheduleForm.inputAppointmentDate.$pristine) || (rescheduleForm.inputAppointmentTime.$error.required && rescheduleForm.inputAppointmentTime.$error.time && !rescheduleForm.inputAppointmentTime.$pristine)}">
+						<label class="col-xs-12 col-sm-3">New Date and Time:</label>
+						<div class="has-feedback col-xs-12 col-sm-5">
+							<input type="date" required  min="{{modifiedAppointment.currentDate}}" ng-model="modifiedAppointment.inputAppointmentDate" class="form-control" id="inputAppointmentDate" name="inputAppointmentDate" placeholder="Date"> <span
+								class="glyphicon glyphicon-calendar form-control-feedback"></span>
+                            <span ng-show="rescheduleForm.inputAppointmentDate.$error.required && rescheduleForm.inputAppointmentDate.$error.date && !rescheduleForm.inputAppointmentDate.$pristine" class="help-block danger">Appointment Date is required and should be greater than current date.</span>
+						</div>
+						<div class="has-feedback col-xs-12 col-sm-4">
+							<input type="time" required ng-model="modifiedAppointment.inputAppointmentTime" class="form-control" id="inputAppointmentTime" name="inputAppointmentTime" placeholder="Time"> <span
+								class="glyphicon glyphicon-time form-control-feedback"></span>
+                            <span ng-show="rescheduleForm.inputAppointmentTime.$error.required && rescheduleForm.inputAppointmentTime.$error.time && !rescheduleForm.inputAppointmentTime.$pristine" class="help-block danger">Appointment Time is required.</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9">
+                            <button type="submit" ng-disabled="rescheduleForm.$invalid" id="rescheduleSubmit" class="btn btn-warning" >Reschedule</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+					</div>
+				</form>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <script type="text/javascript">
+
+    $(function(){
+        
+        $('#rescheduleSubmit').click(function() {
+
+             $('#rescheduleModal').modal('hide');
+        });
+        $('#rescheduleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var appointmentid = button.data('appointmentid');
+            var appointmentdate = button.data('appointmentdate');
+            var appointmenttimehrs = button.data('appointmenttimehrs');
+            var appointmentmin = button.data('appointmentmin');
+            var modal = $(this);
+            var date = new Date(appointmentdate);
+            var day = date.getDate();
+            var monthIndex = date.getMonth();
+            var year = date.getFullYear();
+            
+            var hrs = appointmenttimehrs > 9 ? appointmenttimehrs : '0' + appointmenttimehrs;
+            var min = appointmentmin > 9 ? appointmentmin : '0' + appointmentmin;
+            modal.find('#inputAppointmentId').val(appointmentid);
+            modal.find('#inputAppointmentId').trigger('input');
+            modal.find('#currentAppointmentDate').val((monthIndex + 1) + "/" + day + "/" + year );
+            modal.find('#currentAppointmentTime').val(hrs + ":" + min);
+        });
+    });
+    </script>
+</div>

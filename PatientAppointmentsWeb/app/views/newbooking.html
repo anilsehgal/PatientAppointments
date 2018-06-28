@@ -1,0 +1,81 @@
+<div class="container" id="NewBookingController" ng-controller="NewBookingController">
+    <form class="form-horizontal" id="bookingForm" name="bookingForm" ng-submit="bookAppointment()" novalidate name="bookingForm" role="form">
+        
+        <div class="form-group">
+            <label class="col-xs-12 col-sm-3 control-label" for="medicalRecordNumber">Medical Record No:</label>
+            <div class="col-xs-12 col-sm-6"><input type="text" readonly class="form-control" name="medicalRecordNumber" ng-model="newbooking.medicalRecordNumber"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-12 col-sm-3 control-label" for="firstName">First Name</label>
+            <div class="col-xs-12 col-sm-6"><input type="text" readonly class="form-control" name="firstName" ng-model="newbooking.firstName"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-12 col-sm-3 control-label" for="lastName">Last Name</label>
+            <div class="col-xs-12 col-sm-6"><input type="text" readonly class="form-control" name="lastName" ng-model="newbooking.lastName"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-12 col-sm-3 control-label" for="dateOfBirth">Date Of Birth</label>
+            <div class="col-xs-12 col-sm-6"><input type="date" readonly class="form-control" name="dateOfBirth" ng-model="newbooking.dateOfBirth"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-12 col-sm-3 control-label" for="userEmailAddress">Email</label>
+            <div class="col-xs-12 col-sm-6"><input readonly type="email" class="form-control" name="userEmailAddress" ng-model="newbooking.userEmailAddress"></div>
+        </div>
+        <div class="form-group" ng-class="{ 'has-error' : bookingForm.doctorPicker.$error.required && !bookingForm.doctorPicker.$pristine }">
+            <label class="col-xs-12 col-sm-3 control-label" for="doctorPicker">Choose Doctor</label>
+            <div class="col-xs-12 col-sm-6">
+                <select class="form-control" required name="doctorPicker" id="doctorPicker" ng-change="fetchDoctorSchedule()" ng-model="newbooking.doctorId">
+                    <option value="">Choose Doctor</option>
+                    <option ng-repeat="doctor in availableDoctors" value="{{doctor.doctorId}}">{{doctor.doctorFirstName + ' ' + doctor.doctorLastName + ' ( ' + doctor.doctorSpecialization + ', ' + doctor.doctorDescription + ' ) '}}</option>
+                </select>
+                <span ng-show="bookingForm.doctorPicker.$error.required && !bookingForm.doctorPicker.$pristine" class="text-danger">Please select a doctor.</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-12 col-sm-3 control-label">Appointment Date and Time</label>
+            <div class="has-feedback col-xs-12 col-sm-3" ng-class="{ 'has-error' : (bookingForm.inputDate.$error.required &&  !bookingForm.inputDate.$pristine) || (bookingForm.inputTime.$error.required && !bookingForm.inputTime.$pristine)}">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="newbooking.dayRequiredForAppointment" uib-datepicker-popup="MM/dd/yyyy" is-open="popup1.opened" min-date="{{currentDate}}" datepicker-template-url="templates/datepicker.html" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" show-button-bar="false" required close-text="Close" ng-change="listAvailableSlots()" alt-input-formats="altInputFormats" id="inputDate" name="inputDate" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="has-feedback col-xs-12 col-sm-3">
+                <input type="time" class="form-control" ng-model="bookingTime" required id="inputTime" name="inputTime" placeholder="Time"
+                       uib-popover-template="dynamicPopover.templateUrl" popover-is-open="suggestTime" popover-placement="right" popover-trigger="focus"> <span
+                    class="glyphicon glyphicon-time form-control-feedback"></span>
+                <span ng-show="(bookingForm.inputDate.$error.required &&  !bookingForm.inputDate.$pristine) || (bookingForm.inputTime.$error.required && !bookingForm.inputTime.$pristine)" class="text-danger">Appointment Date &amp; Time are required.</span>
+                
+            </div>
+        </div>
+        <div class="form-group" ng-class="{ 'has-error' : bookingForm.ailmentDescription.$error.required && !bookingForm.ailmentDescription.$pristine }">
+            <label class="col-xs-12 col-sm-3 control-label" for="ailmentDescription">Describe Ailment: </label>
+            <div class="col-xs-12 col-sm-6"><textarea rows="6" required cols="25" class="form-control" name="ailmentDescription" ng-model="newbooking.ailmentDescription">
+                </textarea>
+            <span ng-show="bookingForm.ailmentDescription.$error.required && !bookingForm.ailmentDescription.$pristine" class="text-danger">Please provide a brief description of the ailment.</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-6">
+                <button type="submit" class="btn btn-primary" ng-disabled="bookingForm.$invalid">Schedule Appointment</button>
+            </div>
+        </div>
+    </form>
+    
+    <script type="text/ng-template" id="myPopoverTemplate.html">
+        <div>
+            <div class="list-group" ng-if="availableSlots.length > 0"><button ng-click="setTime(slot)" type="button" class="list-group-item" ng-repeat="slot in availableSlots">{{slot}}:00</button></div>
+            <div ng-if="availableSlots.length === 0" class="text-danger">No Slots Available, Please verify the doctor and appointment date</div>
+        </div>
+    </script>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+</div>
