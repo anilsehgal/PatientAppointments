@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+
+	<select id="getUserByEmailAndPassword"
+		parameterType="edu.stratford.patientappointments.model.valueobjects.ApplicationUserVO"
+		resultType="edu.stratford.patientappointments.model.valueobjects.ApplicationUserVO">
+		OPEN SYMMETRIC KEY SymmetricKey1
+		DECRYPTION BY CERTIFICATE Certificate1
+		
+		SELECT medicalRecordNumber
+		,firstName
+		,lastName
+		,dateOfBirth
+		,userEmailAddress
+		,CONVERT(varchar, DecryptByKey(applicationPasswordEnc)) AS 'applicationPassword'
+		,isAdmin
+		FROM ApplicationUserInfo
+		WHERE userEmailAddress = #{userEmailAddress,jdbcType=VARCHAR} AND 
+		isAdmin=#{isAdmin,jdbcType=VARCHAR} 
+		
+		CLOSE SYMMETRIC KEY SymmetricKey1
+
+	</select>
+
+	<select id="getPatientByRecordNumber"
+		parameterType="java.lang.Double"
+		resultType="edu.stratford.patientappointments.model.valueobjects.ApplicationUserVO">
+		SELECT medicalRecordNumber
+		,firstName
+		,lastName
+		,dateOfBirth
+		,userEmailAddress
+		,applicationPasswordEnc AS 'applicationPassword'
+		,isAdmin
+		FROM ApplicationUserInfo
+		WHERE medicalRecordNumber = #{medicalRecordNumber}
+	</select>
+
+	<select id="getMaxUserId" resultType="java.lang.Integer">
+		SELECT
+		Max(medicalRecordNumber)
+		FROM ApplicationUserInfo
+	</select>
+
+	<insert id="insertUser"
+		parameterType="edu.stratford.patientappointments.model.valueobjects.ApplicationUserVO">
+		OPEN SYMMETRIC KEY SymmetricKey1 
+		DECRYPTION BY CERTIFICATE Certificate1
+		
+		INSERT INTO ApplicationUserInfo
+		(medicalRecordNumber
+		,firstName
+		,lastName
+		,dateOfBirth
+		,userEmailAddress
+		,applicationPasswordEnc
+		,isAdmin)
+		VALUES
+		(#{medicalRecordNumber}
+		,#{firstName,jdbcType=VARCHAR}
+		,#{lastName,jdbcType=VARCHAR}
+		,#{dateOfBirth}
+		,#{userEmailAddress,jdbcType=VARCHAR}
+		,EncryptByKey( Key_GUID('SymmetricKey1'), CONVERT(varchar,#{applicationPassword,jdbcType=VARCHAR}) )
+		,#{isAdmin,jdbcType=VARCHAR})
+		
+		CLOSE SYMMETRIC KEY SymmetricKey1
+	</insert>
+
+	<insert id="insertAppointment"
+		parameterType="edu.stratford.patientappointments.model.valueobjects.PatientAppointmentInfoVO">
+		INSERT INTO PatientAppointmentInfo
+		(appointmentId,
+		patientMedicalRecordNumber
+		,doctorId
+		,dayRequiredForAppointment
+		,appointmentTimeHours
+		,appointmentTimeMinutes
+		,ailmentDescription
+		,rescheduleDate
+		,rescheduleTimeHours
+		,rescheduleTimeMinutes
+		,appointmentStatus
+		)
+		VALUES
+		(#{appointmentId,jdbcType=VARCHAR}
+		,#{patientMedicalRecordNumber}
+		,#{doctorId,jdbcType=VARCHAR}
+		,#{dayRequiredForAppointment}
+		,#{appointmentTimeHours}
+		,#{appointmentTimeMinutes}
+		,#{ailmentDescription,jdbcType=VARCHAR}
+		,#{rescheduleDate,jdbcType=DATE}
+		,#{rescheduleTimeHours}
+		,#{rescheduleTimeMinutes}
+		,#{appointmentStatus})
+	</insert>
+
+	<select id="getAllDoctors"
+		resultType="edu.stratford.patientappointments.model.valueobjects.DoctorInfoVO">
+		SELECT doctorId
+		,doctorFirstName
+		,doctorLastName
+		,doctorGender
+		,doctorSpecialization
+		,doctorDescription
+		,weeklyHolidayCode
+		FROM DoctorInfo
+	</select>
+	
+	<select id="getAllPatients"
+		resultType="edu.stratford.patientappointments.model.valueobjects.ApplicationUserVO">
+		SELECT medicalRecordNumber
+		,firstName
+		,lastName
+		,dateOfBirth
+		,userEmailAddress
+		,applicationPasswordEnc AS 'applicationPassword'
+		,isAdmin
+		FROM ApplicationUserInfo
+		WHERE isAdmin = 'N'
+	</select>
+	
+	<select id="getDoctorById"
+		parameterType="java.lang.String" resultType="edu.stratford.patientappointments.model.valueobjects.DoctorInfoVO">
+		SELECT doctorId
+		,doctorFirstName
+		,doctorLastName
+		,doctorGender
+		,doctorSpecialization
+		,doctorDescription
+		,weeklyHolidayCode
+		FROM DoctorInfo
+		WHERE doctorId = #{doctorId,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getDoctorScheduleForDate"
+		parameterType="edu.stratford.patientappointments.model.valueobjects.DoctorScheduleVO" resultType="edu.stratford.patientappointments.model.valueobjects.DoctorScheduleVO">
+		SELECT doctorId
+		,scheduleDate
+		,inTime
+		,outTime
+		FROM DoctorSchedule
+		WHERE doctorId = #{doctorId,jdbcType=VARCHAR} AND
+		scheduleDate = #{scheduleDate,jdbcType=DATE}
+	</select>
+
+	<select id="getAllAppointments" resultType="edu.stratford.patientappointments.model.valueobjects.PatientAppointmentInfoVO">
+		SELECT 
+		patientinfo.appointmentId "appointmentId"
+		,patientinfo.patientMedicalRecordNumber "patientMedicalRecordNumber" 
+		,appuser.firstName "firstName"
+		,appuser.lastName "lastName"
+		,appuser.dateOfBirth "dateOfBirth"
+		,patientinfo.doctorId "doctorId"
+		,patientinfo.dayRequiredForAppointment "dayRequiredForAppointment"
+		,patientinfo.appointmentTimeHours "appointmentTimeHours"
+		,patientinfo.appointmentTimeMinutes "appointmentTimeMinutes"
+		,appuser.userEmailAddress "patientEmailAddress"
+		,patientinfo.ailmentDescription "ailmentDescription"
+		,patientinfo.rescheduleDate "rescheduleDate"
+		,patientinfo.rescheduleTimeHours "rescheduleTimeHours"
+		,patientinfo.rescheduleTimeMinutes "rescheduleTimeMinutes"
+		,patientinfo.appointmentStatus "appointmentStatus"
+		FROM ApplicationUserInfo appuser, PatientAppointmentInfo patientinfo
+		WHERE appuser.medicalRecordNumber = patientinfo.patientMedicalRecordNumber 
+	</select>
+	
+	<select id="getAllAppointmentsForDoctor" parameterType="java.lang.String" resultType="edu.stratford.patientappointments.model.valueobjects.PatientAppointmentInfoVO">
+		SELECT 
+		patientinfo.appointmentId "appointmentId"
+		,patientinfo.patientMedicalRecordNumber "patientMedicalRecordNumber" 
+		,appuser.firstName "firstName"
+		,appuser.lastName "lastName"
+		,appuser.dateOfBirth "dateOfBirth"
+		,patientinfo.doctorId "doctorId"
+		,patientinfo.dayRequiredForAppointment "dayRequiredForAppointment"
+		,patientinfo.appointmentTimeHours "appointmentTimeHours"
+		,patientinfo.appointmentTimeMinutes "appointmentTimeMinutes"
+		,appuser.userEmailAddress "patientEmailAddress"
+		,patientinfo.ailmentDescription "ailmentDescription"
+		,patientinfo.rescheduleDate "rescheduleDate"
+		,patientinfo.rescheduleTimeHours "rescheduleTimeHours"
+		,patientinfo.rescheduleTimeMinutes "rescheduleTimeMinutes"
+		,patientinfo.appointmentStatus "appointmentStatus"
+		FROM ApplicationUserInfo appuser, PatientAppointmentInfo patientinfo
+		WHERE appuser.medicalRecordNumber = patientinfo.patientMedicalRecordNumber 
+		AND patientinfo.doctorId = #{doctorId,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="rescheduleAppointment"
+		parameterType="edu.stratford.patientappointments.model.valueobjects.PatientAppointmentInfoVO">
+		UPDATE 
+		PatientAppointmentInfo
+		SET 
+		appointmentStatus = 5
+		,dayRequiredForAppointment = #{dayRequiredForAppointment}
+		,appointmentTimeHours = #{appointmentTimeHours}
+		,appointmentTimeMinutes = #{appointmentTimeMinutes}
+		,rescheduleDate = null
+		,rescheduleTimeHours = 0
+		,rescheduleTimeMinutes = 0
+		WHERE appointmentId = #{appointmentId,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="respondToAppointment"
+		parameterType="edu.stratford.patientappointments.model.valueobjects.PatientAppointmentInfoVO">
+		UPDATE 
+		PatientAppointmentInfo
+		SET 
+		appointmentStatus = #{appointmentStatus}
+		,rescheduleDate = null
+		,rescheduleTimeHours = 0
+		,rescheduleTimeMinutes = 0
+		WHERE appointmentId = #{appointmentId,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteAppointmentWithId"
+		parameterType="java.lang.String">
+		DELETE FROM PatientAppointmentInfo
+		WHERE appointmentId = #{appointmentId,jdbcType=VARCHAR}
+	</delete>
+	
+	<select id="getBookedAppointments" parameterType="java.lang.String" 
+	resultType="edu.stratford.patientappointments.model.valueobjects.AppointmentCountVO" >
+		SELECT dayRequiredForAppointment as scheduleDate, 
+		COUNT(doctorId) as appointmentCount 
+		FROM PatientAppointmentInfo 
+		GROUP BY dayRequiredForAppointment, doctorid 
+		HAVING doctorid = #{doctorId,jdbcType=VARCHAR}
+	</select>
+</mapper>

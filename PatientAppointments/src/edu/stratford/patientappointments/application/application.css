@@ -1,0 +1,21 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: white;
+}
+.progress-bar  { -fx-accent: green;  }
+.progress-bar .bar { 
+    -fx-padding: 2px; 
+    -fx-background-insets: 0; 
+}
+.green-bar  { -fx-accent: green;  }
+.yellow-bar { -fx-accent: yellow; }
+.orange-bar { -fx-accent: orange; }
+.red-bar    { -fx-accent: red;    }
+
+.highlightedRow {
+	-fx-background-color: #BDB76B;
+	-fx-stroke: white;
+}
+.disableCal {
+	-fx-opacity: 1.0;
+}

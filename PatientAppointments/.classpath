@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/lib/asm-4.2.jar"/>
+	<classpathentry kind="lib" path="lib/lib/cglib-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib/lib/log4j-api-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/lib/log4j-core-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/lib/slf4j-api-1.7.12.jar"/>
+	<classpathentry kind="lib" path="lib/lib/slf4j-log4j12-1.7.12.jar"/>
+	<classpathentry kind="lib" path="lib/mybatis-3.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/sqljdbc4.jar"/>
+	<classpathentry kind="lib" path="lib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail-1.5.5.jar"/>
+	<classpathentry kind="lib" path="lib/jfxtras/jfxtras-labs-samples-8.0-r5-SNAPSHOT-shadow.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
